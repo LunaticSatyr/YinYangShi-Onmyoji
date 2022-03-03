@@ -1,4 +1,4 @@
-# -Onmyoji
+# YinYangShi-Onmyoji
 A project I make to help my girlfriend experiment with the game
 
 Note: I wrote variables in Chinese to help my girlfriend develop a better understanding to what these mess of words actually do, and I'm sorry if you can't read Chinese 😅
