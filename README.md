@@ -75,11 +75,11 @@ I felt genuine surprise from what I've learned from this project!
     `
     THIS IS AMAZING! Every promise in Part A is processed at the same time! Even better,
     The program will WAIT for ALL the promises in Part A to be resolved first before proceeding to Part B and then Part C!
-    I actually wrapped Part A with console.time() and console.timeEnd(), and the efficiency of the code was boosted by about 10 times!
-    for-of loop takes 324.156 seconds but Promise.all(Array.map()) takes only 31.392 seconds!
-    The time fluctuates a little, and it is affected by internet speed as well but yeah, THIS IS AMAZING! 🤩
+    I actually wrapped Part A with console.time() and console.timeEnd() to compare their efficiency.
+    for-of loop takes 107.754 seconds but Promise.all(Array.map()) takes ONLY 3.484 seconds, saving 96.767% of the time!
+    The time fluctuates a little, and it is affected by my internet speed as well but yeah, THIS IS AMAZING! 🤩
     
-2.  I know that it is not preferable or rarely used, but I have my quirks and I enjoy exploring what I'm familiar with,
+2.  I know that it is not preferable or rarely used, but I have my quirks and I enjoy exploring what I'm not familiar with,
     so I implemented dynamic variable names 😍😝
     With a prior understanding to string literal, after learning how the function eval() works, it's actually really simple to implement.
     For people interested, these helped me in understanding
