@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阴阳师式神录 v2</title>
+  <script>
+    const 技能序对照表 = new Map([[1, "技能一"], [2, "技能二"], [3, "技能三"]]);
+    const 编号对照位置表 = new Map();
+    (async () => {
+      "use strict";
+      let rawData = await fetch("https://raw.githubusercontent.com/LunaticSatyr/-Onmyoji/main/%E5%BC%8F%E7%A5%9E%E5%BD%95v1");
+      let parsedData = await rawData.json();
+      let 式神录 = await parsedData.data;
+      /*
+      1. Apparently, using async/await on forEach loop will cause the code AFTER the forEach loop to run first (?)
+      2. Using await on for-of loop causes the code block in it to run in sequence, one-by-one (107.754 sec)
+      3. Using async/await Promise.all() on map does the magic! Everything is fetched in parallel, and this enhances the efficiency by so much! (3.484 sec)
+      */
+      let 位置 = 0;
+      console.time("fetch");
+      // 式神录.forEach( async 式神 => {
+      // for await (let 式神 of 式神录){
+      await Promise.all(式神录.map( async 式神 => {
+        // 式神.技能录 = [];
+        编号对照位置表.set(式神.编号, 位置++);
+        式神.技能录 = {};
+        let 觉醒前技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=${式神.编号}&awake=0&level=40&star=6`);
+        let 觉醒前技能录parsed = await 觉醒前技能录raw.json();
+        let 觉醒前技能录 = [];
+        // let 觉醒前技能录 = {};
+        for(let i=1; i<=3; i++){
+          if(觉醒前技能录parsed.data[`${式神.编号}${i}`] === undefined)
+            continue;
+          let 觉醒前技能raw = 觉醒前技能录parsed.data[`${式神.编号}${i}`];
+          let 觉醒前技能 = {
+            序: 技能序对照表.get(i),
+            名字: 觉醒前技能raw.name,
+            详解: 觉醒前技能raw.normaldesc,
+            升级效果: 觉醒前技能raw.desc,
+            图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒前技能raw.icon}.png`
+          };
+          觉醒前技能录.push(觉醒前技能);
+          // eval(`觉醒前技能录 = {...觉醒前技能录, ${技能序对照表.get(i)}: 觉醒前技能};`);
+          console.log("pushed");
+        }
+        // 式神["技能录"].push(觉醒前技能录);
+        式神.技能录 = {...式神.技能录, 觉醒前: 觉醒前技能录};
+        // i know i know i know that this object is empty, and that there's no need to destructure it but I consider this a good practice :P
+        if(式神.稀有度!=="SP" && 式神.稀有度!=="N"){
+          let 觉醒后技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=${式神.编号}&awake=1&level=40&star=6`);
+          let 觉醒后技能录parsed = await 觉醒后技能录raw.json();
+          let 觉醒后技能录 = [];
+          // let 觉醒后技能录 = {};
+          for (let i=1; i<=3; i++){
+            if(觉醒后技能录parsed.data[`${式神.编号}${i}`] === undefined)
+              continue;
+            let 觉醒后技能raw = 觉醒后技能录parsed.data[`${式神.编号}${i}`];
+            let 觉醒后技能 = {
+              序: 技能序对照表.get(i),
+              名字: 觉醒后技能raw.name,
+              详解: 觉醒后技能raw.normaldesc,
+              升级效果: 觉醒后技能raw.desc,
+              图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒后技能raw.icon}.png`
+            };
+            觉醒后技能录.push(觉醒后技能);
+            // eval(`觉醒后技能录 = {...觉醒后技能录, ${技能序对照表.get(i)}: 觉醒后技能};`);
+          }
+          // if(Object.keys(觉醒后技能录)===0)
+            // 觉醒后技能录 = {属性加成: 觉醒后技能录parsed.data.add};
+          if(!觉醒后技能录.length)
+            觉醒后技能录.push({属性加成: 觉醒后技能录parsed.data.add});
+          式神.技能录 = {...式神.技能录, 觉醒后: 觉醒后技能录};
+        }
+      }));
+      console.timeEnd("fetch");
+      /*
+      注：通常技能ID的格式为"式神ID"+"序号"
+      例：炭治郎（ID 359）的二技能的 ID 为 3592
+      在官方的服务器里，有四个式神的技能ID不符合以上格式（359, 344, 205, 245）
+      以下环节为我的手动修改
+      */
+      /*
+        首先是炭治郎，编号359，不一致的原因是
+        他的二技能名为 “叁之型·流流舞”，参（念sān）所以就 3593 了······
+        他的三技能名为 “拾之型·生生流转”，拾（念shí）所以就 35910 了······
+        他的一技能名为 “壹之型·水面斩击”，壹（念yī）所以 3591 没问题
+      */
+      炭治郎修改部分: {
+        let 炭治郎 = 式神录[编号对照位置表.get("359")];
+        炭治郎.技能录 = {};
+        let 觉醒前技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=359&awake=0&level=40&star=6`);
+        let 觉醒前技能录parsed = await 觉醒前技能录raw.json();
+        let 觉醒后技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=359&awake=1&level=40&star=6`);
+        let 觉醒后技能录parsed = await 觉醒后技能录raw.json();
+        // let 觉醒前技能录 = {}, 觉醒后技能录 = {};
+        let 觉醒前技能录 = [], 觉醒后技能录 = [];
+        let 技能编号 = [3591, 3593, 35910];
+        for(let i=1; i<=3; i++){         // <----- i-1 因为 i 从 1 开始
+          let 觉醒前技能raw = 觉醒前技能录parsed.data[技能编号[i-1]];
+          let 觉醒前技能 = {
+            序: 技能序对照表.get(i),
+            名字: 觉醒前技能raw.name,
+            详解: 觉醒前技能raw.normaldesc,
+            升级效果: 觉醒前技能raw.desc,
+            图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒前技能raw.icon}.png`
+          };
+          // eval(`觉醒前技能录 = {...觉醒前技能录, ${技能序对照表.get(i)}: 觉醒前技能};`);
+          觉醒前技能录.push(觉醒前技能);
+          console.log("pushed");
+          if(i === 3){                  // <----- 觉醒增强三技能
+            let 觉醒后技能raw = 觉醒后技能录parsed.data[技能编号[i-1]];
+            let 觉醒后技能 = {
+              序: 技能序对照表.get(i),
+              名字: 觉醒后技能raw.name,
+              详解: 觉醒后技能raw.normaldesc,
+              升级效果: 觉醒后技能raw.desc,
+              图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒后技能raw.icon}.png`
+            };
+            // eval(`觉醒后技能录 = {${技能序对照表.get(i)}: 觉醒后技能};`);
+            觉醒后技能录.push(觉醒后技能);
+          }
+        }
+        炭治郎.技能录 = {觉醒前: 觉醒前技能录, 觉醒后: 觉醒后技能录};
+      }
+      /*
+        接下来是云外镜，编号344，不一致的原因是编号采用了 456 而不是以往的 123
+        不明白···若要带出镜面所以有俩的意思，难道不是应该 246 吗···
+      */
+      云外镜修改部分: {
+        let 云外镜 = 式神录[编号对照位置表.get("344")];
+        云外镜.技能录 = {};
+        let 觉醒前技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=344&awake=0&level=40&star=6`);
+        let 觉醒前技能录parsed = await 觉醒前技能录raw.json();
+        let 觉醒后技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=344&awake=1&level=40&star=6`);
+        let 觉醒后技能录parsed = await 觉醒后技能录raw.json();
+        // let 觉醒前技能录 = {}, 觉醒后技能录 = {};
+        let 觉醒前技能录 = [], 觉醒后技能录 = [];
+        let 技能编号 = [3444, 3445, 3446];
+        for(let i=1; i<=3; i++){         // <----- i-1 因为 i 从 1 开始
+          let 觉醒前技能raw = 觉醒前技能录parsed.data[技能编号[i-1]];
+          let 觉醒前技能 = {
+            序: 技能序对照表.get(i),
+            名字: 觉醒前技能raw.name,
+            详解: 觉醒前技能raw.normaldesc,
+            升级效果: 觉醒前技能raw.desc,
+            图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒前技能raw.icon}.png`
+          };
+          // eval(`觉醒前技能录 = {...觉醒前技能录, ${技能序对照表.get(i)}: 觉醒前技能};`);
+          觉醒前技能录.push(觉醒前技能);
+          console.log("pushed");
+          if(i === 2){                  // <----- 觉醒增强二技能
+            let 觉醒后技能raw = 觉醒后技能录parsed.data[技能编号[i-1]];
+            let 觉醒后技能 = {
+              序: 技能序对照表.get(i),
+              名字: 觉醒后技能raw.name,
+              详解: 觉醒后技能raw.normaldesc,
+              升级效果: 觉醒后技能raw.desc,
+              图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒后技能raw.icon}.png`
+            };
+            // eval(`觉醒后技能录 = {${技能序对照表.get(i)}: 觉醒后技能};`);
+            觉醒后技能录.push(觉醒后技能);
+          }
+        }
+        云外镜.技能录 = {觉醒前: 觉醒前技能录, 觉醒后: 觉醒后技能录};
+      }
+      /*
+        再者是座敷童子，编号205，不一致的原因···
+        我才是打错字把，203写成了204···实在看不出其他原因的
+      */
+      座敷童子修改部分: {
+        let 座敷童子 = 式神录[编号对照位置表.get("205")];
+        座敷童子.技能录 = {};
+        let 觉醒前技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=205&awake=0&level=40&star=6`);
+        let 觉醒前技能录parsed = await 觉醒前技能录raw.json();
+        let 觉醒后技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=205&awake=1&level=40&star=6`);
+        let 觉醒后技能录parsed = await 觉醒后技能录raw.json();
+        // let 觉醒前技能录 = {}, 觉醒后技能录 = {};
+        let 觉醒前技能录 = [], 觉醒后技能录 = [];
+        let 技能编号 = [2051, 2052, 2054];
+        for(let i=1; i<=3; i++){        // <----- i-1 因为 i 从 1 开始
+          if(i===2)                     // <----- 因为二技能在觉醒后才解锁
+            continue;
+          let 觉醒前技能raw = 觉醒前技能录parsed.data[技能编号[i-1]];
+          let 觉醒前技能 = {
+            序: 技能序对照表.get(i),
+            名字: 觉醒前技能raw.name,
+            详解: 觉醒前技能raw.normaldesc,
+            升级效果: 觉醒前技能raw.desc,
+            图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒前技能raw.icon}.png`
+          };
+          // eval(`觉醒前技能录 = {...觉醒前技能录, ${技能序对照表.get(i)}: 觉醒前技能};`);
+          觉醒前技能录.push(觉醒前技能);
+          console.log("pushed");
+        }
+        let 觉醒后技能raw = 觉醒后技能录parsed.data[2052];
+        let 觉醒后技能 = {
+          序: "技能二",
+          名字: 觉醒后技能raw.name,
+          详解: 觉醒后技能raw.normaldesc,
+          升级效果: 觉醒后技能raw.desc,
+          图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒后技能raw.icon}.png`
+        };
+        // 觉醒后技能录 = {技能二: 觉醒后技能};
+        觉醒后技能录.push(觉醒后技能);
+        座敷童子.技能录 = {觉醒前: 觉醒前技能录, 觉醒后: 觉醒后技能录};
+      }
+      /*
+        最后是提灯小僧，编号245，不一致的原因我猜想也是打错字了，2452 写成了 2453
+      */
+      提灯小僧修改部分: {
+        let 提灯小僧 = 式神录[编号对照位置表.get("245")];
+        提灯小僧.技能录 = {};
+        let 觉醒前技能录raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_skill?heroid=245&awake=0&level=40&star=6`);
+        let 觉醒前技能录parsed = await 觉醒前技能录raw.json();
+        // let 觉醒前技能录 = {};
+        let 觉醒前技能录 = [];
+        let 技能编号 = [2451, 2453];
+        for(let i=1; i<=2; i++){        // <----- i-1 因为 i 从 1 开始
+          let 觉醒前技能raw = 觉醒前技能录parsed.data[技能编号[i-1]];
+          let 觉醒前技能 = {
+            序: 技能序对照表.get(i),
+            名字: 觉醒前技能raw.name,
+            详解: 觉醒前技能raw.normaldesc,
+            升级效果: 觉醒前技能raw.desc,
+            图标源: `https://yys.res.netease.com/pc/zt/20161108171335/data/skill/${觉醒前技能raw.icon}.png`
+          };
+          // eval(`觉醒前技能录 = {...觉醒前技能录, ${技能序对照表.get(i)}: 觉醒前技能};`);
+          觉醒前技能录.push(觉醒前技能);
+          console.log("pushed");
+        }
+        提灯小僧.技能录 = {觉醒前: 觉醒前技能录};
+      }
+      /*
+        修改完毕
+      */
+      // let id = ["359", "344", "205", "245"];         // <----- 用于检查修改后的资料
+      // for(let i of id){
+      //   let hero = 式神录[编号对照位置表.get(i)];
+      //   console.log(hero);
+      // }
+      // for(let 式神 of 式神录){
+      //   if(式神.稀有度==="SP"||式神.稀有度==="N"){     // <----- 可改，用于检查
+      //     console.log(`ID: ${式神.编号}, Name: ${式神.名字}, before: ${Object.keys(式神.技能录.觉醒前).length}, after: ${Object.keys(式神.技能录.觉醒前 ?? 0).length}`);
+      //   }
+      // }
+      let v2 = await `{"data": ${JSON.stringify(式神录)}, "map": ${JSON.stringify(Object.fromEntries(编号对照位置表))}, "amount": ${位置}}`;
+      console.log(v2);
+      // return 式神录;
+    })();
+    // .then(res => `{"data":${JSON.stringify(res)}}`)
+    // .then(res => console.log(res));
+    
+  </script>
+</head>
+<body>
+</body>
+</html>
