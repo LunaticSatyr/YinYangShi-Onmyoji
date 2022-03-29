@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阴阳师式神录 v1</title>
+  <script>
+    (async () => {
+      let rawData = await fetch("https://g37simulator.webapp.163.com/get_heroid_list?rarity=0&per_page=1000");
+      let parsedData = await rawData.json();
+      // 更正拼音
+      let 拼音修正 = new Map();
+      拼音修正.set(207, "jiumingmao");
+      拼音修正.set(210, "guishibai");
+      拼音修正.set(211, "guishihei");
+      拼音修正.set(248, "huangchuanzhizhu");
+      拼音修正.set(256, "yaoqinshi");
+      拼音修正.set(268, "huibishou");
+      拼音修正.set(294, "nulianglusheng");
+      拼音修正.set(303, "yi");
+      拼音修正.set(307, "maozhanggui");
+      拼音修正.set(310, "mitaojiezi");
+      拼音修正.set(315, "shaoyudatiangou");
+      拼音修正.set(316, "baizangzhu");
+      拼音修正.set(322, "lianyucimutongzi");
+      拼音修正.set(323, "tianjingxia");
+      拼音修正.set(325, "baqidashe");
+      拼音修正.set(326, "daoheshenyuzhuanjin");
+      拼音修正.set(327, "cangfengyimulian");
+      拼音修正.set(328, "chiyingyaodaoji");
+      拼音修正.set(331, "yuyuanbore");
+      拼音修正.set(334, "xiaolanghuangchuanzhizhu");
+      拼音修正.set(336, "xiumuluqiya");
+      拼音修正.set(339, "jintianyuzaoqian");
+      拼音修正.set(341, "guiwangjiutuntongzi");
+      拼音修正.set(343, "tianjianrenxinguiqie");
+      拼音修正.set(346, "linghaijinyuji");
+      拼音修正.set(348, "fushiqingxingdeng");
+      拼音修正.set(352, "fuguqingji");
+      拼音修正.set(354, "shixiaoguhuoniao");
+      拼音修正.set(355, "lumingdayuewan");
+      拼音修正.set(357, "chulingshanfeng");
+      拼音修正.set(358, "yemingbianhua");
+      拼音修正.set(359, "zaomentanzhilang");
+      拼音修正.set(360, "zaomenmidouzi");
+      拼音修正.set(362, "chanbingxuenv");
+      拼音修正.set(366, "kongxiangmianlingqi");
+      拼音修正.set(367, "huishihuaniaojuan");
+      拼音修正.set(369, "shiling");
+      拼音修正.set(372, "yinfanhuiyeji");
+      拼音修正.set(377, "mengxunshantu");
+      拼音修正.set(403, "tangzhisanyao");
+      拼音修正.set(404, "tianxieguilv");
+      拼音修正.set(405, "tianxieguichi");
+      拼音修正.set(406, "tianxieguihuang");
+      拼音修正.set(407, "tianxieguiqing");
+      // console.log(拼音修正);
+      for(let [key, value] of 拼音修正)
+        parsedData.data[key].icon = `pic_ss_${value}`;
+      // 修正完毕
+      const 稀有度对照表 = new Map([[1,"N"], [2,"R"], [3,"SR"], [4,"SSR"], [5,"SP"]]);
+      var 式神录 = [];
+      for(i in parsedData.data){
+        if(parsedData.data[i].material_type)
+          continue;
+        式神录.push({编号: i, 名字: parsedData.data[i].name, 稀有度: parsedData.data[i].rarity, 拼音: parsedData.data[i].icon.slice(7)});
+      }
+      式神录.sort((a,b) => a.稀有度 === b.稀有度 ? (a.拼音 < b.拼音 ? -1 : 1) : b.稀有度 - a.稀有度);
+      式神录.forEach(式神 => {
+        式神.稀有度 = 稀有度对照表.get(式神.稀有度);
+      });
+      let v1 = `{"data":${JSON.stringify(式神录)}}`;
+      console.log(v1);
+    })();
+  </script>
+</head>
+<body>
+</body>
+</html>

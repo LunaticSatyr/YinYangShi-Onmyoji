@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>阴阳师式神录 v3</title>
+</head>
+<body>
+  <script>
+    const 满星 = 6;
+    const 满级 = 40;
+    const 评分对照表 = new Map([[0, "D"], [1, "C"], [2, "B"], [3, "A"], [4, "S"], [5, "SS"]]);
+    (async () => {
+      let rawData = await fetch("https://raw.githubusercontent.com/LunaticSatyr/YinYangShi-Onmyoji/main/%E5%BC%8F%E7%A5%9E%E5%BD%95v2%20Array");
+      let parsedData = await rawData.json();
+      let 式神录 = parsedData.data;
+      await Promise.all(式神录.map( async 式神 => {
+        式神.情报 = {};
+        let 觉醒前情报raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_attr?heroid=${式神.编号}&awake=0&level=${满级}&star=${满星}`);
+        let 觉醒前情报parsed = await 觉醒前情报raw.json();
+        let 觉醒前情报 = 觉醒前情报parsed.data;
+        /*    全都是 0，应该是战斗中才会不一样
+        let a = 觉醒前情报;
+        console.log(`${a.initTurnPos} ${a.debuffEnhance} ${a.hurtReboundRate} ${a.hurtAdditionRate} ${a.debuffResist} ${a.dodge} ${a.debuffReflect} ${a.revenge} ${a.curedStrenthRate} ${a.leechRate} ${a.koGainHPRate} ${a.cureStrenthRate} ${a.koGainMP} ${a.hurtReductionRate} ${式神.编号}`);
+        */
+        let 觉醒前 = {
+          攻击: {
+            数值: 觉醒前情报.attack,
+            评分: 评分对照表.get(觉醒前情报.score.attack)
+          },
+          生命: {
+            数值: 觉醒前情报.maxHp,
+            评分: 评分对照表.get(觉醒前情报.score.maxHp)
+          },
+          防御: {
+            数值: 觉醒前情报.defense,
+            评分: 评分对照表.get(觉醒前情报.score.defense)
+          },
+          速度: {
+            数值: 觉醒前情报.speed,
+            评分: 评分对照表.get(觉醒前情报.score.speed)
+          },
+          暴击: {
+            数值: 觉醒前情报.critRate,
+            评分: 评分对照表.get(觉醒前情报.score.critRate)
+          },
+          暴击伤害: 觉醒前情报.critPower,
+          效果命中: 觉醒前情报.debuffEnhance,
+          效果抵抗: 觉醒前情报.debuffResist
+        }
+        式神.情报 = {觉醒前};
+        if(式神.稀有度!=="SP" && 式神.稀有度!=="N"){
+          let 觉醒后情报raw = await fetch(`https://g37simulator.webapp.163.com/get_hero_attr?heroid=${式神.编号}&awake=1&level=${满级}&star=${满星}`);
+          let 觉醒后情报parsed = await 觉醒后情报raw.json();
+          let 觉醒后情报 = 觉醒后情报parsed.data;
+          let 觉醒后 = {
+            攻击: {
+            数值: 觉醒后情报.attack,
+            评分: 评分对照表.get(觉醒后情报.score.attack)
+          },
+          生命: {
+            数值: 觉醒后情报.maxHp,
+            评分: 评分对照表.get(觉醒后情报.score.maxHp)
+          },
+          防御: {
+            数值: 觉醒后情报.defense,
+            评分: 评分对照表.get(觉醒后情报.score.defense)
+          },
+          速度: {
+            数值: 觉醒后情报.speed,
+            评分: 评分对照表.get(觉醒后情报.score.speed)
+          },
+          暴击: {
+            数值: 觉醒后情报.critRate,
+            评分: 评分对照表.get(觉醒后情报.score.critRate)
+          },
+            暴击伤害: 觉醒后情报.critPower,
+            效果命中: 觉醒后情报.debuffEnhance,
+            效果抵抗: 觉醒后情报.debuffResist
+          }
+          式神.情报 = {...式神.情报, 觉醒后};
+        }
+      }));
+      let v3 = JSON.stringify(parsedData);
+      console.log(v3);
+    })();
+  </script>
+</body>
+</html>
