@@ -3,9 +3,13 @@
   padding: 0;
   box-sizing: border-box;
 }
+@font-face {
+  font-family: "STKaiTi";
+  src: url("https://github.com/LunaticSatyr/YinYangShi-Onmyoji/blob/main/font/stkaiti.ttf?raw=true");
+}
 :root {
   --main-color-theme: #D4AF37;
-  --main-font-family: "楷体", "KaiTi", "Microsoft YaHei", "Helvetica";
+  --main-font-family: "KaiTi", "STKaiTi", "Microsoft YaHei", "Helvetica";
   --icon-URL: url("https://raw.githubusercontent.com/LunaticSatyr/YinYangShi-Onmyoji/main/images/template.png");
 }
 body > img {
