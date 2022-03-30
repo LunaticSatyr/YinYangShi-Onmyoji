@@ -106,8 +106,8 @@ var 式神录, 式神总数, 编号对照位置表, 名字对照位置表 = new 
       option.dataset.编号 = 式神.编号;
       option.dataset.拼音 = 式神.拼音;
       // using a CSS property instead to achieve multiple background-image at once
-      // option.style.backgroundImage = `url("https://yys.res.netease.com/pc/zt/20161108171335/data/shishen/${式神.编号}.png")`;
-      option.style.setProperty("--URL", `url(https://yys.res.netease.com/pc/zt/20161108171335/data/shishen/${式神.编号}.png`)
+      // option.style.backgroundImage = `url("https://raw.githubusercontent.com/LunaticSatyr/YinYangShi-Onmyoji/main/images/icon/${式神.编号}.png")`;
+      option.style.setProperty("--URL", `url("https://raw.githubusercontent.com/LunaticSatyr/YinYangShi-Onmyoji/main/images/icon/${式神.编号}.png")`);
       $tag("template")[1].content.querySelector("datalist").appendChild(option);
       名字对照位置表.set(option.textContent, option.value);
     }
