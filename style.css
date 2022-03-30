@@ -9,7 +9,7 @@
 }
 :root {
   --main-color-theme: #D4AF37;
-  --main-font-family: "KaiTi", "STKaiTi", "Microsoft YaHei", "Helvetica";
+  --main-font-family: "STKaiTi", "KaiTi", "Microsoft YaHei", "Helvetica";
   --icon-URL: url("https://raw.githubusercontent.com/LunaticSatyr/YinYangShi-Onmyoji/main/images/template.png");
 }
 body > img {
