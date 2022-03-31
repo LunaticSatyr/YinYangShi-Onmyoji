@@ -1,7 +1,8 @@
 # YinYangShi-Onmyoji
-A project I make to help my girlfriend experiment with the game
+A project I'm working on to help my girlfriend experiment with the game she's interested in
 
-Note: I wrote variables in Chinese to help my girlfriend develop a better understanding to what these mess of words actually do, and I'm sorry if you can't read Chinese 😅
+Note: I wrote certain parts of the code in Mandarin to help my girlfriend understand how does the code works 😅
+Extra note: My English is actually much better than my Mandarin 😝
 
 若我的小程序能够帮助到你，我很荣幸
 有意见的地方，随时都可以反馈到我的邮箱 😁
