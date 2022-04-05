@@ -2,9 +2,15 @@ TL;DR:
 1. await Promise.all( Array.map() );
 2. dynamic variable names using eval and template literals
 3. object-fit doesn't work with % but works with px, em/rem, vh/vm
+4. multiple background-images with JavaScript + CSS Variables
+5. clip-path doesn't interact well with z-index of pseudo-elements
+6. 
+7. 
+8. 
 
 I felt genuine surprise from what I've learned from this project!
-1.  I know that I will be using fetch and async/await, dealing with promises and array functions,
+1.  await Promise.all( Array.map() );
+    I know that I will be using fetch and async/await, dealing with promises and array functions,
     but using async/await in tandem with Promise.all() and Array.map is simply AMAZING! Just like magic! 🤩
     Just to clarify, I'm already familiar with all their usage before this project.
     I always thought the for-of loop implemented in ES6 as the "cool kid" created to replace forEach loop to reduce callback usage,
@@ -75,7 +81,8 @@ I felt genuine surprise from what I've learned from this project!
     for-of loop takes 107.754 seconds but Promise.all(Array.map()) takes ONLY 3.484 seconds, saving 96.767% of the time!
     The time fluctuates a little, and it is affected by my internet speed as well but yeah, THIS IS AMAZING! 🤩
     
-2.  I know that it is not preferable and rarely used, but I have my quirks and I enjoy exploring what I'm not familiar with,
+2.  dynamic variable names using eval and template literals
+    I know that it is not preferable and rarely used, but I have my quirks and I enjoy exploring what I'm not familiar with,
     so I implemented dynamic variable names 😍😝
     With a prior understanding to template literals, after learning how the function eval() works, it's actually really simple to implement.
     For people interested, these helped me in understanding
@@ -83,21 +90,66 @@ I felt genuine surprise from what I've learned from this project!
                        https://developers.google.com/web/updates/2015/01/ES6-Template-Strings
     Dynamic variable names: https://www.geeksforgeeks.org/how-to-use-dynamic-variable-names-in-javascript/
 
-3. `object-fit` is a nice CSS property that allows you to choose how to present an image with a larger size relative to its container.
-   `object-fit: contain` would resize the larger image while maintaining its aspect ratio,
-                       until it is small enough for the container to `contain` the WHOLE image
-   `object-fit: cover` would make the larger image `cover`s the container using its center (both horizontally and vertically)
-   
-   I like to visualize the differences by imagining putting a piece of paper (larger surface area) on a box (smaller surface area).
-   To ensure that the paper is balance and not fall off, I'd have to stack the paper and the box in a way that align their centers of gravity,
-   so that the 2 pairs of opposite sides have the same extra length of paper.
-   That would be `object-fit: cover`.
-   Achieving `object-fit: contain` would mean to resize the paper (I know it's physically impossible but let's just imagine it :P)
-   until the whole paper can be contained by the box (or the container).
-   Doing so will cause the paper to span across the opposite sides of the box in an axis (horizontal / vertical depending on the aspect ratio),
-   and leaving some hollow, or rather, NOT "cover"ed areas on the two sides of another axis.
-   For better understanding, it's better to visit https://www.w3schools.com/css/css3_object-fit.asp and play around with `outline: 1px solid red`;
-   
-   I wrote all that to reinforce my memory sorry for the rambling :P
-   Back to the main point, apparently this `object-fit` property doesn't work when the height/width of the image is set using `%`.
-   It works when I tried length units of vw, vh, em, rem, and px.
+3.  object-fit doesn't work with % but works with px, em/rem, vh/vm
+    `object-fit` is a nice CSS property that allows you to choose how to present an image with a larger size relative to its container.
+    `object-fit: contain` would resize the larger image while maintaining its aspect ratio, 
+                          until it is small enough for the container to `contain` the WHOLE image
+    `object-fit: cover` would make the larger image `cover`s the container using its center (both horizontally and vertically)
+
+    I like to visualize the differences by imagining putting a piece of paper (larger surface area) on a box (smaller surface area).
+    To ensure that the paper is balance and not fall off, I'd have to stack the paper and the box in a way that align their centers of gravity,
+    so that the 2 pairs of opposite sides have the same extra length of paper.
+    That would be `object-fit: cover`.
+    Achieving `object-fit: contain` would mean to resize the paper (I know it's physically impossible but let's just imagine it :P)
+    until the whole paper can be contained by the box (or the container).
+    Doing so will cause the paper to span across the opposite sides of the box in an axis (horizontal / vertical depending on the aspect ratio),
+    and leaving some hollow, or rather, NOT "cover"ed areas on the two sides of another axis.
+    For better understanding, it's better to visit https://www.w3schools.com/css/css3_object-fit.asp and play around with `outline: 1px solid red`;
+
+    I wrote all that to reinforce my memory sorry for the rambling :P
+    Back to the main point, apparently this `object-fit` property doesn't work when the height/width of the image is set using `%`.
+    It works when I tried length units of vw, vh, em, rem, and px.
+
+4.  multiple background-images with JavaScript + CSS Variables
+    So I'm doing this custom searchable drop-down list, and I wanted every option to have an icon.
+    Not surprisingly, putting an <img> element inside an <option> element doesn't work, so I use CSS background-image property instead.
+    Adding a line of JavaScript for every option upon generation like this:
+      option.style.backgroundImage = `url("path/${式神.编号}.png")`;
+    does the job. However the option is looking quite boring and mundane, so I was thinking to add a linear-gradient and possibly a sort of
+    glowing or pulsating radial-gradient to the options upon selected by cursor hover / arrow keys.
+    Without hesitation, I quickly coded what's in my mind:
+      option.target {
+        background-image: linear-gradient(...), radial-gradient(...);
+        ...
+      }
+    
+    Just as I joyously look for a nice output, to my surprise, the gradients were there, but the icon is gone.
+    It is immediately clear to me that the background-image property of the targetted option superceded that of non-targetted option.
+    For the icon and the gradients to coexist, I need to write a background-image property consisting all 3 of them.
+    I immediately thought of setting a data-icon-URL attribute for every option upon generation, then retrieve the URL using the attr() CSS function
+    in background-image property, however the url() function within the return value of attr() function is not parsed by CSS...
+    Apparently, according to MDN, there have been efforts to add types and fallback for the attr() function, but as of the time
+    this self-reflection is written, it is not supported in any browser yet. See: https://developer.mozilla.org/en-US/docs/Web/CSS/attr
+    Then, I thought of storing ONLY the URL in the data-icon-URL attribute, then call it in background-image using the attr() function,
+    and wrap that attr() function inside a url() function that looks like this: background-image: url(attr(data-icon-URL));
+    However, CSS doesn't do that, as the url() function only accepts a string as argument, and the attr() function inside it is not evaluated.
+    
+    Just when I was flustered about this, CSS Variables came to the rescue. You know, I've been using CSS variables since the first week of studying CSS
+    but it wasn't my first and immediate approach, and I'm kinda ashamed about that 🤣
+    So once that idea clicked in my head, all I had to do was:
+      option.style.setProperty("--icon-URL", `url("path/${式神.编号}.png")`);                           in JavaScript, and
+      background-image: var(--icon-URL), linear-gradient(...), radial-gradient(...);                   in CSS
+    After setting up background-size, and background-position with their values separated using commas, everything works as I planned!
+    There, all happy! 😄
+
+5.  clip-path doesn't interact well with z-index of pseudo-elements
+
+
+
+
+
+
+
+
+
+
