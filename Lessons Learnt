@@ -3,8 +3,8 @@ TL;DR:
 2. dynamic variable names using eval and template literals
 3. object-fit doesn't work with % but works with px, em/rem, vh/vm
 4. multiple background-images with JavaScript + CSS Variables
-5. clip-path doesn't interact well with z-index of pseudo-elements
-6. 
+5. clip-path forces the pseudo-elements to be on top of the parent element
+6. position: absolute + transform: translate() to center an element itself
 7. 
 8. 
 
@@ -142,14 +142,90 @@ I felt genuine surprise from what I've learned from this project!
     After setting up background-size, and background-position with their values separated using commas, everything works as I planned!
     There, all happy! 😄
 
-5.  clip-path doesn't interact well with z-index of pseudo-elements
+5.  clip-path forces the pseudo-elements to be on top of the parent element
+    In other words, clip-path doesn't interact well with the z-index of pseudo-elements.
+    Normally when you have an element with both ::before and ::after pseudo-elements, you may stack them however you want using z-index.
+    In my case, I wanted to make a hexagonal container with 3 layers of different colors to contain some icons.
+    I was thinking that maybe I'll have the ::before pseudo-element with z-index: 1 containing the said icon stacked on top of the element itself,
+    which is stacked on top of the ::after pseudo-element with z-index: -1.
+    
+    Linguistically, it makes perfect sense to me because the one ::before is stacked at the top, the one ::after is placed at the back.
+    Structurally, I see no problem at all and so I was quick to code it out.
+    This is the worst one for me because things went wrong and I've ABSOLUTELY NO IDEA what went wrong.
+    I was tinkering this and that, desperately trying to find out what was wrong, and after this massive process of elimination,
+    I finally casted my suspicion on the CSS property `clip-path`.
+    
+    The CSS property clip-path is absolutely amazing. It makes displaying an element in custom shape so unbelievably easy, plus it can be animated!
+    I've never doubted it in the first place because how does shape has anything to do with stacking?
+    Oh what a hard price I've paid, for such innocent presumption...
+    Yep, just as I removed that property from codepen.io which I was using for testing, the z-index works again, and in fact,
+    every other property works just as expected. I've no idea why is it like that, but upon more research on StackOverflow,
+    I realize that this is a common issue, and the go-to solution is just putting the element at the back with its pseudo-elements on top of it.
+    It is however, still possible to stack the pseudo-elements in the order that we want using z-index;
 
-
-
-
-
-
-
-
-
-
+6.  position: absolute + transform: translate() to center an element itself
+    I got really used to the easy way of setting 
+      element.parent {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    in the parent element to center its child / children.
+    But I've encountered some occassions where it feels inappropriate to do so when it's only one child element that needs to be centered / positioned.
+    The solution is simple, and I'm familiar with it as I've seen it quite a number of times already in video tutorials I've watched in YouTube.
+    What makes me reflect about it is its elegance. I don't know, it's just beatiful to me, and I can't wait to reinforce my memory about it.
+    
+    The solution is a combination of:
+      element {
+        position: absolute;
+        top/bottom/left/right: +- 50%;
+        transform: translateX / translateY ( +-50% );
+      }
+    Though the values used are 50%, they mean differently in transform and the 4 directional properties(? let's just call them that).
+    Taking the example of
+      element {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+      },
+    left: 50% computes a distance, d, equals to 50% of the width of the PARENT element, and places the element d px right to the parent's left border;
+    transform: translateX(-50%) on the other hand, computes a distance, x, equals to 50% of the width of the ELEMENT ITSELF,
+    and translates the element x px to the left (because negative) of where it was placed in the `left: 50%` just now.
+    
+    As such, it is now d-x pixels from the parent's left border.
+    Now, note that d is 50% of the width of the parent element, so the parent's width is 2d,
+    while x is 50% of the width of the element itself, so the element itself has a width of 2x.
+    Illustration:
+                    d-x pixels             2x pixels                  ?
+                  |------------|-------------------------------|------------|
+    left border (parent)                  the element                 right border (parent)
+    The distance between the element and the right border of its parent
+    = 2d - (d-x) - 2x pixel
+    = 2d - d + x - 2x
+    = d-x pixels
+    = Guess what? The distance between the element and the left border of its parent!
+    
+    We just centered an element horizontally in its parent element!
+    It works the same for elements larger than its parent.
+    The same effect can be achieved with
+      element {
+        position: absolute;
+        right: -50%;
+        transform: translateX(50%);
+      },
+    and I'll let you work it out why if you are fascinated as well 😉.
+    Vertically, these work.
+      element {                                   element {
+        position: absolute;                         position: absolute;
+        top: 50%;                         or        bottom: 50%;
+        transform: translateY(-50%);                transform: translateY(-50%);
+      }                                           }
+      
+    To center an element both horizontally and vertically, any combination works!
+    Just note that you'll have to use `translate()` instead with 2 arguments: horizontal translation then its vertical counterpart, like:
+      element {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
