@@ -2,11 +2,11 @@ TL;DR:
 1. await Promise.all( Array.map() );
 2. dynamic variable names using eval and template literals
 3. object-fit doesn't work with % but works with px, em/rem, vh/vm
-4. multiple background-images with JavaScript + CSS Variables
+4. multiple background-images using JavaScript + CSS Variables
 5. clip-path forces the pseudo-elements to be on top of the parent element
 6. position: absolute + transform: translate() to center an element itself
-7. 
-8. 
+7. debounce and throttle, and the core concept behind them—closure
+8. function vs function()
 
 I felt genuine surprise from what I've learned from this project!
 1.  await Promise.all( Array.map() );
@@ -110,7 +110,7 @@ I felt genuine surprise from what I've learned from this project!
     Back to the main point, apparently this `object-fit` property doesn't work when the height/width of the image is set using `%`.
     It works when I tried length units of vw, vh, em, rem, and px.
 
-4.  multiple background-images with JavaScript + CSS Variables
+4.  multiple background-images using JavaScript + CSS Variables
     So I'm doing this custom searchable drop-down list, and I wanted every option to have an icon.
     Not surprisingly, putting an <img> element inside an <option> element doesn't work, so I use CSS background-image property instead.
     Adding a line of JavaScript for every option upon generation like this:
@@ -229,3 +229,58 @@ I felt genuine surprise from what I've learned from this project!
         left: 50%;
         transform: translate(-50%, -50%);
       }
+
+7.  debounce and throttle, and the core concept behind them—closure
+    In brief, both debounce and throttle are terms that come from electronics, with the purpose of limiting user's input.
+    When applied to programming, debouncing a function supresses continuous activity within a time frame, in other words
+    forcing the function to wait for a specific time frame before it is allowed to run again.
+    Throttling a function on the other hand, fires the function at specific interval if the function is triggered continuously.
+    Perhaps my word choice is bad and I did poorly explaining them, but that's how I understood them as I'm writing this reflection.
+    Don't worry, we'll understand more about them with examples.
+    
+    At a younger age, I've never understood or comprehended the purpose of limiting activities, (yep I was stoopid but come on,
+    I didn't have adults explaining that to me...) until I need to write an eventlistener for drag.
+    Holy smokes! The function just fires off like there's no tomorrow and it makes my page so laggy! 😯
+    I tried to figure out some algorithm that uses mouse movement / distance as a criterion to fire a function,
+    but apparently mousemove event is disabled during a drag event.
+    I was stumbling on several StackOverflow posts until I came across a comment with 1 (YES ONLY 1) upvote recommending the OP
+    to try debouncing / throttling the function, which turns out to be the right suggestion!
+    (Well that comment only provides a link to MDN but not the code solution so I guess not much people were bothered by that)
+    
+    So during a drag event, the function is fired continuously, and if the function doesn't get enough time to do what it's meant to do
+    before it's fired again, the page becomes laggy. This is where debouncing and throttling come in to save the day.
+    Using drag as an example, without debounce / throttle, my function fires of continuously as long as I'm dragging an element.
+    Let's say I set a delay of 500ms, with simple debounce, the function doesn't fire at all, and it'll only fire after 
+    I stop dragging the element for 500ms, and it only fire once. With a slightly modified debounce, we can make the function to
+    fire once immediately when I start dragging an element, and never again until I drag it the next time, after stopping for 500ms.
+    
+    Applying simple throttle to a function on the other hand, would cause the function to fire once immediately when I start
+    dragging an element, then fire once every 500ms as long as I'm dragging the element. It's important to note that if I stop dragging
+    the element within a 500ms interval from the last time the function fires, the function would NOT fire when I stop dragging the element,
+    but just like debouncing, we may modify the throttle function a little to fire the function once more when the continuous event ended.
+    
+    Now, I have to apologize if the usage of "simple" and "modified" debounce or throttle functions throws you off a little for you have
+    learned them the "modified" way or gained a full understanding of the 2 functions already, but this is objectively a self-reflection,
+    and that's how I really have learned debounce and throttle: a simple one, then an improved one. But before we get into the code,
+    it is important to understand JavaScript Closure. In my humble opinion, w3schools has really nailed explaning the concepts of Closure
+    to a beginner like me and the example used was perfect. For interested readers: https://www.w3schools.com/js/js_function_closures.asp
+    For more advanced examples and questions, I would recommend https://javascript.info/closure
+    The next paragraph really is just my self-reflection on Closure so you may skip it as you please. 😉
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
