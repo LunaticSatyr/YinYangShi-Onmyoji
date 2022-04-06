@@ -231,29 +231,42 @@ I felt genuine surprise from what I've learned from this project!
       }
 
 7.  debounce and throttle, and the core concept behind them—closure
+
+    ============
+    Introduction
+    ============
     In brief, both debounce and throttle are terms that come from electronics, with the purpose of limiting user's input.
     When applied to programming, debouncing a function supresses continuous activity within a time frame, in other words
     forcing the function to wait for a specific time frame before it is allowed to run again.
     Throttling a function on the other hand, fires the function at specific interval if the function is triggered continuously.
-    Perhaps my word choice is bad and I did poorly explaining them, but that's how I understood them as I'm writing this reflection.
+    Perhaps my word choice is bad and I explained them poorly, but that's how I understood them as I'm writing this reflection.
     Don't worry, we'll understand more about them with examples.
     
-    At a younger age, I've never understood or comprehended the purpose of limiting activities, (yep I was stoopid but come on,
-    I didn't have adults explaining that to me...) until I need to write an eventlistener for drag.
+    =======================
+    Why debounce / throttle
+    =======================
+    I've never understood or comprehended the purpose of limiting activities, until I need to write an event listener for drag.
     Holy smokes! The function just fires off like there's no tomorrow and it makes my page so laggy! 😯
-    I tried to figure out some algorithm that uses mouse movement / distance as a criterion to fire a function,
+    I tried to figure out some algorithm that uses mouse movement as a criterion to fire a function,
     but apparently mousemove event is disabled during a drag event.
     I was stumbling on several StackOverflow posts until I came across a comment with 1 (YES ONLY 1) upvote recommending the OP
     to try debouncing / throttling the function, which turns out to be the right suggestion!
     (Well that comment only provides a link to MDN but not the code solution so I guess not much people were bothered by that)
     
-    So during a drag event, the function is fired continuously, and if the function doesn't get enough time to do what it's meant to do
-    before it's fired again, the page becomes laggy. This is where debouncing and throttling come in to save the day.
-    Using drag as an example, without debounce / throttle, my function fires of continuously as long as I'm dragging an element.
+    ===============================
+    How debouncing a function works
+    ===============================
+    So during a drag event, the function is fired continuously as long as I'm dragging the element, and if the function 
+    doesn't get enough time to compute what it's meant to compute before it's fired again, the page becomes laggy.
+    This is where debouncing and throttling come in to save the day.
+    Again, using drag as an example, without debounce / throttle, my function fires of continuously as long as I'm dragging an element.
     Let's say I set a delay of 500ms, with simple debounce, the function doesn't fire at all, and it'll only fire after 
     I stop dragging the element for 500ms, and it only fire once. With a slightly modified debounce, we can make the function to
     fire once immediately when I start dragging an element, and never again until I drag it the next time, after stopping for 500ms.
     
+    ===============================
+    How throttling a function works
+    ===============================
     Applying simple throttle to a function on the other hand, would cause the function to fire once immediately when I start
     dragging an element, then fire once every 500ms as long as I'm dragging the element. It's important to note that if I stop dragging
     the element within a 500ms interval from the last time the function fires, the function would NOT fire when I stop dragging the element,
@@ -262,25 +275,62 @@ I felt genuine surprise from what I've learned from this project!
     Now, I have to apologize if the usage of "simple" and "modified" debounce or throttle functions throws you off a little for you have
     learned them the "modified" way or gained a full understanding of the 2 functions already, but this is objectively a self-reflection,
     and that's how I really have learned debounce and throttle: a simple one, then an improved one. But before we get into the code,
-    it is important to understand JavaScript Closure. In my humble opinion, w3schools has really nailed explaning the concepts of Closure
+    it is important to understand JavaScript Closure. In my humble opinion, w3schools has really nailed explaining the concepts of Closure
     to a beginner like me and the example used was perfect. For interested readers: https://www.w3schools.com/js/js_function_closures.asp
     For more advanced examples and questions, I would recommend https://javascript.info/closure
-    The next paragraph really is just my self-reflection on Closure so you may skip it as you please. 😉
+    The next section really is just my self-reflection on Closure so you may skip it as you please. 😉
     
+    ===================================
+    What is JavaScript Closure, and why
+    ===================================
+    In JavaScript (and most other languages i guess), variables can be global or local.
+    Global variables can be accessed anywhere and by any functions, while local variables can only be accessed within the scope it is declared.
+    However, there are times when we need a local variable that can be accessed by specific functions, ANYWHERE in the code.
+    This is where JavaScript Closure comes in. 
+    JavaScript Tutorial: In JavaScript, a closure is a function that references variables in the outer scope from its inner scope.
+    MDN: A closure is the combination of a function bundled together (enclosed) with references to its surrounding state (the lexical environment).
+    Yep they are too unfriendly for a beginner like me so I had to learn from w3schools.
+    To my understanding, JS Closure is a function that wraps a variable (or more) and a function that is meant to access it, let's call it f(),
+    altogether in a function scope. The JS Closure returns f(), and is normally assigned to another variable.
+    What is the purpose of doing so? Why is it done so? Don't worry we'll look at it in a few minutes
     
+    Speaking of that, I feel the need to refresh what does variable assignment do in JavaScript.
+    A simple example of
+      const sum = 1+2;
+    assigns the variable sum with a value of 3.
+    Supposed that we have a function called sumOf() that takes 2 parameters and returns the sum of them,
+    we can assign the result to the variable sum this way.
+      function sumOf(x,y) {
+        return Number(x) + Number(y);           // Using Number() to avoid string concatenation
+      }
+      const sum = sumOf(1,2)      // 3
     
+    ***     Side notes    ***
+    That's totally wayyy outdated and what I would have used back when I only had 1 month of experience. Now, I love
+      function sumOf(...args) {
+        return args.reduce((sum, arg) => {
+          return sum + arg;
+        }, 0);
+      }
+    I simply think that this is soooooo beautiful 🤩 and it's one of JS' splendours that evangelized me into a JavaScript believer 🤣
+    *** End of side notes ***
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    Now, in JavaScript, we not only can assign value to a variable, but we can also assign a function to a variable.
+    Come, press Ctrl + Shift + I and try this out together with me.
+      function f() {
+        console.log("in f()");
+        return () => console.log("the returned function");
+      }
+      const r = f();
+    In this example, we have a function called f, which logs the message "in f()" into the console,
+    and return an anonymous function which logs the message "the returned function" into the console.
+    Now, when we do `const r = f();`
+    First, the function f is invoked by parentheses, so f is run once, logs "in f()" into the console,
+    then returns the anonymous function AND ASSIGNS it to the variable r.
+    This is what I really love about JavaScript: we can assign functions to a variable.
+    (Perhaps the reason I'm saying this is because I started from Java, then C++, where this feature is absent)
+    Now if you type r in the console, the console tells you that r is THE anonymous function in f,
+    and when you type r(), THE anonymous function (now r) is invoked by parentheses, and the message
+    "the returned function" is logged into the console.
     
     
