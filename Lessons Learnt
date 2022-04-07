@@ -303,34 +303,85 @@ I felt genuine surprise from what I've learned from this project!
       function sumOf(x,y) {
         return Number(x) + Number(y);           // Using Number() to avoid string concatenation
       }
-      const sum = sumOf(1,2)      // 3
+      const sum = sumOf(1,2)                    // sum = 3
     
-    ***     Side notes    ***
+    *****    Side notes     *****
     That's totally wayyy outdated and what I would have used back when I only had 1 month of experience. Now, I love
       function sumOf(...args) {
         return args.reduce((sum, arg) => {
           return sum + arg;
         }, 0);
       }
-    I simply think that this is soooooo beautiful 🤩 and it's one of JS' splendours that evangelized me into a JavaScript believer 🤣
-    *** End of side notes ***
+    This is soooooo beautiful 🤩 and it's one of JS' splendours that evangelized me to become a JavaScript believer 🤣
+    ***** End of side notes *****
     
-    Now, in JavaScript, we not only can assign value to a variable, but we can also assign a function to a variable.
+    Now, in JavaScript, not only that we can assign value to a variable, but we can also assign a function to a variable.
     Come, press Ctrl + Shift + I and try this out together with me.
       function f() {
         console.log("in f()");
         return () => console.log("the returned function");
       }
       const r = f();
-    In this example, we have a function called f, which logs the message "in f()" into the console,
-    and return an anonymous function which logs the message "the returned function" into the console.
-    Now, when we do `const r = f();`
+    In this example, we have a function called f, which when invoked, logs the message "in f()" into the console,
+    and returns an anonymous function which logs the message "the returned function" into the console.
+    
+    When we do `const r = f();`,
     First, the function f is invoked by parentheses, so f is run once, logs "in f()" into the console,
     then returns the anonymous function AND ASSIGNS it to the variable r.
     This is what I really love about JavaScript: we can assign functions to a variable.
     (Perhaps the reason I'm saying this is because I started from Java, then C++, where this feature is absent)
-    Now if you type r in the console, the console tells you that r is THE anonymous function in f,
-    and when you type r(), THE anonymous function (now r) is invoked by parentheses, and the message
-    "the returned function" is logged into the console.
+    *** Note that it's only f that's being invoked, not the returned anonymous function, which is why
+    we only see the message "in f()" but not "the returned function" in the console.
+    
+    Now if you type r in the console, the console returns THE anonymous function in f, which is expected
+    because we have just assigned that anonymous function to r just now, and if you type r(),
+    THE anonymous function (now r) is invoked by parentheses, and "the returned function" is logged into the console.
+    This example really is about me refreshing my perception of variable assignment and function invokation.
+    Now, back to closure — a function that wraps a variable and returns a function that's meant to access that variable in a scope.
+    A simple example I can think of is making counters for different occassion.
+      function newCounter() {
+        let count = 0;
+        return () => {
+          return ++count;
+        }
+      }
+      const counterA = newCounter();
+      const counterB = newCounter();
+      counterA();       // returns 1
+      counterA();       // returns 2
+      counterB();       // returns 1
+      
+    The function `newCounter` creates a variable `count` with an initial value equals to 0,
+    and returns a function that increments THE variable by one every time when invoked.
+    What's important here is that `newCounter` wraps the variable and the returned function in a scope,
+    more precisely, a Lexical Environment (according to https://javascript.info/closure),
+    so that the returned function has access to the variable `count`, and only the returned function has access to `count`.
+    That is, the `count` variable is declared once, and is accessible exclusively to the returned function,
+    and is not accessible anywhere in the code. This prevents increment of `count` mistakenly by other functions in the code.
+    
+    By assigning counterA and counterB the return function of `newCounter`, 2 lexical environments are created and
+    each of them (counterA and counterB) has access to individual `count`.
+    In other words, the variable `count` which counterA serves to increment is different from the variable `count` for counterB.
+    Now, we may rename counterA and counterB to more lucid names associated to variables they are meant to increment,
+    heck we may even rename the variable and the rewrite the function to whatever we want it to do to the variable.
+    To sum up, a JavaScript Closure scopes a variable (or more, really) and a function to make the variable(s)
+    exclusively accessible to the returned functions. 
+    Again, I really recommend checking out:
+                           W3Cchools:      https://www.w3schools.com/js/js_function_closures.asp,
+        with better examples and explanations, also implementation of Immediately-Invoked Function Expressions(IIFE) 😍🤩❤
+      The Modern JavaScript Tutorial:      https://javascript.info/closure
+        which includes more in-depth details and more practical examples 🤯😍🤩❤
+
+    With those (variable assignment, function invokation, and JavaScript Closure) covered,
+    we are now fully equipped with necessary basics to understand the code for debounce and throttle.
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
