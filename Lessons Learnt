@@ -178,7 +178,7 @@ I felt genuine surprise from what I've learned from this project!
     The solution is a combination of:
       element {
         position: absolute;
-        top/bottom/left/right: +- 50%;
+        top/bottom/left/right: 50%;
         transform: translateX / translateY ( +-50% );
       }
     Though the values used are 50%, they mean differently in transform and the 4 directional properties(? let's just call them that).
@@ -210,7 +210,7 @@ I felt genuine surprise from what I've learned from this project!
     The same effect can be achieved with
       element {
         position: absolute;
-        right: -50%;
+        right: 50%;
         transform: translateX(50%);
       },
     and I'll let you work it out why if you are fascinated as well 😉.
@@ -218,7 +218,7 @@ I felt genuine surprise from what I've learned from this project!
       element {                                   element {
         position: absolute;                         position: absolute;
         top: 50%;                         or        bottom: 50%;
-        transform: translateY(-50%);                transform: translateY(-50%);
+        transform: translateY(-50%);                transform: translateY(50%);
       }                                           }
       
     To center an element both horizontally and vertically, any combination works!
@@ -335,10 +335,15 @@ I felt genuine surprise from what I've learned from this project!
     
     Now if you type r in the console, the console returns THE anonymous function in f, which is expected
     because we have just assigned that anonymous function to r just now, and if you type r(),
-    THE anonymous function (now r) is invoked by parentheses, and "the returned function" is logged into the console.
+    THE anonymous function (now r) is invoked by parentheses, and "the returned function" is logged into the console. 
     This example really is about me refreshing my perception of variable assignment and function invokation.
-    Now, back to closure — a function that wraps a variable and returns a function that's meant to access that variable in a scope.
-    A simple example I can think of is making counters for different occassion.
+    Looking back, it really is the same writing 
+      const r = () => console.log("the returned function");
+    So why are we writing all those in such manner? 
+    Allow me to introduce you — Closure.
+    
+    Closure — a function that wraps a variable and returns a function that's meant to access that variable in a scope.
+    A simple example I can think of is making counters for different variables / purposes.
       function newCounter() {
         let count = 0;
         return () => {
@@ -355,30 +360,58 @@ I felt genuine surprise from what I've learned from this project!
     and returns a function that increments THE variable by one every time when invoked.
     What's important here is that `newCounter` wraps the variable and the returned function in a scope,
     more precisely, a Lexical Environment (according to https://javascript.info/closure),
-    so that the returned function has access to the variable `count`, and only the returned function has access to `count`.
+    so that the returned function has access to the variable `count`, and ONLY THE returned function has access to `count`.
     That is, the `count` variable is declared once, and is accessible exclusively to the returned function,
-    and is not accessible anywhere in the code. This prevents increment of `count` mistakenly by other functions in the code.
+    NOT accessible anywhere else in the code. This prevents increment of `count` mistakenly by other functions in the code.
     
     By assigning counterA and counterB the return function of `newCounter`, 2 lexical environments are created and
-    each of them (counterA and counterB) has access to individual `count`.
+    each of them (counterA and counterB) has access to individual `count` variable.
     In other words, the variable `count` which counterA serves to increment is different from the variable `count` for counterB.
     Now, we may rename counterA and counterB to more lucid names associated to variables they are meant to increment,
     heck we may even rename the variable and the rewrite the function to whatever we want it to do to the variable.
-    To sum up, a JavaScript Closure scopes a variable (or more, really) and a function to make the variable(s)
-    exclusively accessible to the returned functions. 
+    
+    To sum it up, a JavaScript Closure scopes a variable (or more) and a function to make the variable(s)
+    exclusively accessible to the returned function. 
     Again, I really recommend checking out:
-                           W3Cchools:      https://www.w3schools.com/js/js_function_closures.asp,
-        with better examples and explanations, also implementation of Immediately-Invoked Function Expressions(IIFE) 😍🤩❤
+                           W3Schools:      https://www.w3schools.com/js/js_function_closures.asp,
+        for better examples and explanations, 😍🤩❤
+        also to take a look at their implementation of Immediately-Invoked Function Expressions(IIFE)
       The Modern JavaScript Tutorial:      https://javascript.info/closure
         which includes more in-depth details and more practical examples 🤯😍🤩❤
 
     With those (variable assignment, function invokation, and JavaScript Closure) covered,
-    we are now fully equipped with necessary basics to understand the code for debounce and throttle.
+    we are now fully equipped with the necessary basics to understand the code for debounce and throttle.
     
-    
-    
-    
-    
+    =====================
+    DEBOUNCING A Function
+    =====================
+    I initially learn it from this video by Kyle of Web Dev Simplified: https://www.youtube.com/watch?v=cjIswDCKgu0
+    but I was confused at first because I wasn't really familiar with function invocation and closures.
+    The code for debounce goes like this:    
+      const debounce = (callback, delay = 250) => {
+        let timeout;
+        return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(() => {
+            callback(...args);        // callback.apply(this, args);
+          }, delay);
+        }
+      };
+      
+                    followed by
+      
+      const debouncedFunction = debounce( ...args => {
+        // what you want the function to do
+      }, delay);
+      
+      or declare the function first (function declaration / expression / arrow function doesn't matter)
+      
+      function Function(args) {
+        // what you want the function to do
+      }
+      const debouncedFunction = debounce(Function, delay);
+      
+      *** Time for lunch and prepare for upcoming coding interview :P ***
     
     
     
