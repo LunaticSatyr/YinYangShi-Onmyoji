@@ -1,7 +1,9 @@
 TL;DR:
 1. await Promise.all( Array.map() );
 2. dynamic variable names using eval and template literals
+   Update (29 Apr 2022): [variable]: "value" (in object) / obj.[variable] = "value"; (as statement)
 3. object-fit doesn't work with % but works with px, em/rem, vh/vm
+   Update (29 Apr 2022): object-fit doesn't work with % when the parent's size is not properly defined
 4. multiple background-images using JavaScript + CSS Variables
 5. clip-path forces the pseudo-elements to be on top of the parent element
 6. position: absolute + transform: translate() to center an element itself
@@ -90,6 +92,16 @@ I felt genuine surprise from what I've learned from this project!
                        https://developers.google.com/web/updates/2015/01/ES6-Template-Strings
     Dynamic variable names: https://www.geeksforgeeks.org/how-to-use-dynamic-variable-names-in-javascript/
 
+    Update (29 Apr 2022): 
+    Apparently ES2015 added the function where we can do
+    const variable = "var";
+    const obj = {
+      [variable]: "value",
+      ...
+    }
+    to create dynamic variable names!
+    I guess we can also do `obj.[variable] = "value";` in a statement.
+    
 3.  object-fit doesn't work with % but works with px, em/rem, vh/vm
     `object-fit` is a nice CSS property that allows you to choose how to present an image with a larger size relative to its container.
     `object-fit: contain` would resize the larger image while maintaining its aspect ratio, 
@@ -109,7 +121,21 @@ I felt genuine surprise from what I've learned from this project!
     I wrote all that to reinforce my memory sorry for the rambling :P
     Back to the main point, apparently this `object-fit` property doesn't work when the height/width of the image is set using `%`.
     It works when I tried length units of vw, vh, em, rem, and px.
-
+    
+    Update (29 Apr 2022):
+    Apparently the problem only occurs when the size of the parent of the <img> element is not properly defined.
+    Like in the case I've given above, once I've set
+    body {
+      height: 100vh;
+    }
+    I can do 
+    img {
+      height: 40%;
+      object-fit contain;
+    }
+    I guess it's because the default height of body is dependent on its content so there's some circular reference going on there.
+    In fact, I could've just used width but I did not realize that 🙃
+    
 4.  multiple background-images using JavaScript + CSS Variables
     So I'm doing this custom searchable drop-down list, and I wanted every option to have an icon.
     Not surprisingly, putting an <img> element inside an <option> element doesn't work, so I use CSS background-image property instead.
